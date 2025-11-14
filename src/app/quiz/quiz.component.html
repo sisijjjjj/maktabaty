@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz Style Personnel</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
+
+    .quiz-container {
+      width: 90%;
+      max-width: 800px;
+      background-color: #ffffff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      box-sizing: border-box;
+      overflow-y: auto;
+      max-height: 95vh;
+    }
+
+    h2 {
+      text-align: center;
+      color: #d63384;
+      margin-bottom: 2rem;
+      font-size: 2rem;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    label {
+      font-weight: bold;
+      color: #444;
+    }
+
+    select, input[type="number"], input[type="text"] {
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      width: 100%;
+      transition: border 0.3s;
+    }
+
+    select:focus, input[type="number"]:focus, input[type="text"]:focus {
+      border: 1px solid #d63384;
+      outline: none;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .checkbox-group label {
+      background-color: #f8d7da;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 0.5rem;
+    }
+
+    button {
+      background-color: #d63384;
+      color: white;
+      border: none;
+      padding: 1rem;
+      font-size: 1.1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 2rem;
+    }
+
+    button:hover {
+      background-color: #c21770;
+    }
+
+    .advice-box {
+      margin-top: 1rem;
+      background-color: #fff3cd;
+      color: #856404;
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      display: none;
+    }
+
+    .advice-box.show {
+      display: block;
+    }
+
+    .checkbox-group input[type="checkbox"]:checked + label {
+      background-color: #e7a1d2;
+    }
+
+    .quiz-container .section-title {
+      font-size: 1.2rem;
+      color: #333;
+      margin-bottom: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-container">
+    <h2>🧡 Définis ton style personnel</h2>
+
+    <form onsubmit="event.preventDefault(); alert('Quiz soumis !')">
+
+      <!-- Morphologie -->
+      <div class="section-title">Ta morphologie :</div>
+      <select id="morphologie" onchange="showConseilMorpho()" required>
+        <option value="" disabled selected>Choisir...</option>
+        <option value="A">A (pyramide)</option>
+        <option value="H">H (rectangle)</option>
+        <option value="X">X (sablier)</option>
+        <option value="O">O (ronde)</option>
+        <option value="V">V (inversé)</option>
+      </select>
+      <div id="conseilMorpho" class="advice-box"></div>
+
+      <!-- Couleur de peau -->
+      <div class="section-title">Ta couleur de peau :</div>
+      <select id="peau" required>
+        <option value="" disabled selected>Choisir...</option>
+        <option>Claire</option>
+        <option>Medium</option>
+        <option>Mate</option>
+        <option>Foncée</option>
+      </select>
+
+      <!-- Couleur des yeux -->
+      <div class="section-title">Ta couleur des yeux :</div>
+      <select id="yeux" required>
+        <option value="" disabled selected>Choisir...</option>
+        <option>Marron</option>
+        <option>Vert</option>
+        <option>Bleu</option>
+        <option>Gris</option>
+        <option>Noisette</option>
+      </select>
+
+      <!-- Couleurs préférées -->
+      <div class="section-title">Couleurs préférées :</div>
+      <div class="checkbox-group">
+        <label><input type="checkbox" value="Rouge">Rouge</label>
+        <label><input type="checkbox" value="Bleu">Bleu</label>
+        <label><input type="checkbox" value="Vert">Vert</label>
+        <label><input type="checkbox" value="Noir">Noir</label>
+        <label><input type="checkbox" value="Blanc">Blanc</label>
+        <label><input type="checkbox" value="Beige">Beige</label>
+        <label><input type="checkbox" value="Rose">Rose</label>
+        <label><input type="checkbox" value="Marron">Marron</label>
+      </div>
+
+      <!-- Types de vêtements -->
+      <div class="section-title">Types de vêtements que tu aimes :</div>
+      <div class="checkbox-group">
+        <label><input type="checkbox" value="Robes">Robes</label>
+        <label><input type="checkbox" value="Pantalons">Pantalons</label>
+        <label><input type="checkbox" value="Jupes">Jupes</label>
+        <label><input type="checkbox" value="Chemises">Chemises</label>
+        <label><input type="checkbox" value="Vestes">Vestes</label>
+        <label><input type="checkbox" value="Accessoires">Accessoires</label>
+      </div>
+
+      <!-- Budget -->
+      <div class="section-title">Ton budget (en €) :</div>
+      <input type="number" min="10" placeholder="Ex : 50" required>
+
+      <!-- Événement -->
+      <div class="section-title">Type d’événement :</div>
+      <select id="evenement" required>
+        <option value="" disabled selected>Choisir...</option>
+        <option>Casual</option>
+        <option>Professionnel</option>
+        <option>Soirée</option>
+        <option>Mariage</option>
+        <option>Voyage</option>
+      </select>
+
+      <!-- Saison -->
+      <div class="section-title">Quelle est ta saison préférée ?</div>
+      <select id="saison" required>
+        <option value="" disabled selected>Choisir...</option>
+        <option>Printemps</option>
+        <option>Été</option>
+        <option>Automne</option>
+        <option>Hiver</option>
+      </select>
+
+      <!-- Tissu -->
+      <div class="section-title">🧵 Type de tissu préféré :</div>
+      <select id="tissu" onchange="suggestTissus()" required>
+        <option value="" disabled selected>Choisir...</option>
+        <option value="Coton">Coton</option>
+        <option value="Lin">Lin</option>
+        <option value="Jean">Jean</option>
+        <option value="Velours">Velours</option>
+        <option value="Soie">Soie</option>
+        <option value="Satin">Satin</option>
+        <option value="Laine">Laine</option>
+        <option value="Dentelle">Dentelle</option>
+      </select>
+      <div id="tissuConseil" class="advice-box"></div>
+
+      <!-- Taille -->
+      <div class="section-title">Quelle est ta taille de vêtements ?</div>
+      <select id="taille" required>
+        <option value="" disabled selected>Choisir...</option>
+        <option>S</option>
+        <option>M</option>
+        <option>L</option>
+        <option>XL</option>
+        <option>XXL</option>
+      </select>
+
+      <!-- Accessoires -->
+      <div class="section-title">Quels accessoires préfères-tu ?</div>
+      <div class="checkbox-group">
+        <label><input type="checkbox" value="Bijoux">Bijoux</label>
+        <label><input type="checkbox" value="Sacs">Sacs</label>
+        <label><input type="checkbox" value="Foulards">Foulards</label>
+        <label><input type="checkbox" value="Lunettes">Lunettes</label>
+      </div>
+
+      <!-- Chaussures -->
+      <div class="section-title">Quel type de chaussures préfères-tu ?</div>
+      <div class="checkbox-group">
+        <label><input type="checkbox" value="Baskets">Baskets</label>
+        <label><input type="checkbox" value="Talons">Talons</label>
+        <label><input type="checkbox" value="Bottes">Bottes</label>
+        <label><input type="checkbox" value="Sandales">Sandales</label>
+      </div>
+
+      <!-- Coiffure -->
+      <div class="section-title">Quel est ton style de coiffure ?</div>
+      <div class="checkbox-group">
+        <label><input type="checkbox" value="Cheveux longs">Cheveux longs</label>
+        <label><input type="checkbox" value="Cheveux courts">Cheveux courts</label>
+        <label><input type="checkbox" value="Bouclés">Bouclés</label>
+        <label><input type="checkbox" value="Lisses">Lisses</label>
+      </div>
+
+      <!-- Inspiration -->
+      <div class="section-title">As-tu une célébrité ou une icône de style que tu admires ?</div>
+      <input type="text" id="inspiration" placeholder="Ex : Emma Watson" />
+
+      <!-- Confort ou élégance -->
+      <div class="section-title">Préférerais-tu des vêtements plus confortables ou élégants ?</div>
+      <select id="confort" required>
+        <option value="" disabled selected>Choisir...</option>
+        <option>Confortables</option>
+        <option>Élégants</option>
+      </select>
+
+      <!-- Voile -->
+      <div class="section-title">Portes-tu le voile ?</div>
+      <select id="voile" required>
+        <option value="" disabled selected>Choisir...</option>
+        <option>Oui</option>
+        <option>Non</option>
+      </select>
+
+      <!-- Tenues complètes -->
+      <div class="section-title">Souhaites-tu des suggestions de tenues complètes ?</div>
+      <select id="tenues" required>
+        <option value="" disabled selected>Choisir...</option>
+        <option>Oui</option>
+        <option>Non</option>
+      </select>
+
+      <!-- Recommandations locales -->
+      <div class="section-title">Souhaites-tu des recommandations d'achats locaux ?</div>
+      <select id="achats" required>
+        <option value="" disabled selected>Choisir...</option>
+        <option>Oui</option>
+        <option>Non</option>
+      </select>
+
+      <button type="submit">Voir mes suggestions ✨</button>
+    </form>
+  </div>
+
+  <script>
+    function showConseilMorpho() {
+      const value = document.getElementById("morphologie").value;
+      const conseilBox = document.getElementById("conseilMorpho");
+      let conseil = "💡 ";
+
+      switch(value) {
+        case "A":
+          conseil += "Épaules plus étroites que les hanches. Mets en valeur le haut de ton corps avec des détails ou des épaulettes.";
+          break;
+        case "H":
+          conseil += "Silhouette droite. Opte pour des vêtements cintrés pour marquer la taille.";
+          break;
+        case "X":
+          conseil += "Épaules et hanches équilibrées avec taille marquée. Tu peux porter presque tout !";
+          break;
+        case "O":
+          conseil += "Formes généreuses. Favorise les coupes fluides et les décolletés en V.";
+          break;
+        case "V":
+          conseil += "Épaules plus larges que les hanches. Mets l’accent sur le bas du corps (jupes évasées, pantalons larges).";
+          break;
+      }
+
+      conseilBox.innerText = conseil;
+      conseilBox.classList.add("show");
+    }
+
+    function suggestTissus() {
+      const tissu = document.getElementById("tissu").value;
+      const saison = document.getElementById("saison").value;
+      const evenement = document.getElementById("evenement").value;
+      const conseilBox = document.getElementById("tissuConseil");
+
+      let conseil = "🧵 ";
+
+      if (saison === "Été" && (tissu === "Coton" || tissu === "Lin")) {
+        conseil += "Excellent choix ! Les tissus légers comme le coton ou le lin sont parfaits pour l'été.";
+      } else if (saison === "Hiver" && tissu === "Laine") {
+        conseil += "La laine est idéale pour l'hiver ! Elle te gardera au chaud.";
+      } else if (evenement === "Soirée" && tissu === "Satin") {
+        conseil += "Le satin est une option élégante pour une soirée.";
+      } else {
+        conseil += "Ce tissu peut être polyvalent selon la coupe choisie.";
+      }
+
+      conseilBox.innerText = conseil;
+      conseilBox.classList.add("show");
+    }
+  </script>
+</body>
+</html>

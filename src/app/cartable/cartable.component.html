@@ -1,0 +1,601 @@
+<div class="cartable-page">
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <!-- Logo -->
+        <a href="#" class="logo">
+          <div class="logo-icon">
+            <img src="https://cdn-icons-png.flaticon.com/512/2910/2910768.png" alt="Maktabaty Logo" style="width: 30px; height: 30px;">
+          </div>
+          <span class="logo-text">Maktabaty</span>
+        </a>
+        
+        <!-- Barre de recherche -->
+        <div class="header-search">
+          <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Rechercher un cartable, une trousse..." 
+                   [(ngModel)]="searchQuery" (input)="onSearch()">
+          </div>
+          <div class="search-suggestions" *ngIf="showSuggestions">
+            <div class="suggestion-item" *ngFor="let suggestion of searchSuggestions">
+              {{suggestion}}
+            </div>
+          </div>
+        </div>
+        
+        <nav>
+          <ul class="nav-menu">
+            <li><a href="/">Accueil</a></li>
+            <li><a href="#" class="active">Cartables</a></li>
+            <li><a href="#">Promotions</a></li>
+          </ul>
+        </nav>
+        
+        <div class="header-actions">
+          <div class="auth-buttons">
+            <button class="btn-login" (click)="openLogin()">
+              <i class="fas fa-sign-in-alt"></i>
+              Connexion
+            </button>
+            <button class="btn-signup" (click)="openSignup()">
+              <i class="fas fa-user-plus"></i>
+              Inscription
+            </button>
+          </div>
+          
+          <div class="header-action-item">
+            <i class="fas fa-search search-toggle" (click)="toggleSearch()"></i>
+          </div>
+          <div class="header-action-item">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="header-action-item cart" (click)="toggleCart()">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge" *ngIf="cartCount > 0">{{cartCount}}</span>
+          </div>
+          <div class="header-action-item">
+            <i class="fas fa-heart"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section avec image et effet lumière -->
+  <section class="hero">
+    <!-- Effet de particules -->
+    <div class="floating-particles" id="particles"></div>
+    
+    <div class="hero-content">
+      <h1 class="hero-title">Cartables & Trousses 🎒</h1>
+      <p class="hero-subtitle">Découvrez notre collection exclusive de cartables et trousses pour la rentrée scolaire ✨</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" (click)="scrollToProducts()">Découvrir 🎯</button>
+        <button class="btn btn-secondary" (click)="showPromotions()">Promotions 🔥</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Principale avec Filtres et Produits -->
+  <section class="main-content-section" #productsSection>
+    <div class="container">
+      <div class="content-wrapper">
+        
+        <!-- Sidebar Filtres -->
+        <aside class="filters-sidebar">
+          <div class="filters-header">
+            <h3>Filtres 🔍</h3>
+            <button class="btn-reset-all" (click)="resetAllFilters()">
+              <i class="fas fa-redo"></i>
+              Tout réinitialiser
+            </button>
+          </div>
+
+          <!-- Filtre par Type -->
+          <div class="filter-group">
+            <h4 class="filter-title">
+              <i class="fas fa-tags"></i>
+              Type de produit
+            </h4>
+            <div class="filter-options">
+              <label class="filter-option" *ngFor="let type of productTypes">
+                <input type="checkbox" 
+                       [checked]="selectedTypes.includes(type.value)"
+                       (change)="toggleTypeFilter(type.value)">
+                <span class="checkmark"></span>
+                <span class="option-text">
+                  {{type.label}} 
+                  <span class="option-emoji">{{type.emoji}}</span>
+                </span>
+                <span class="product-count">({{getProductCountByType(type.value)}})</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Filtre par Prix -->
+          <div class="filter-group">
+            <h4 class="filter-title">
+              <i class="fas fa-euro-sign"></i>
+              Prix 💰
+            </h4>
+            <div class="price-filter">
+              <div class="price-range">
+                <span class="price-min">{{priceRange.min}}€</span>
+                <span class="price-separator">-</span>
+                <span class="price-max">{{priceRange.max}}€</span>
+              </div>
+              <div class="price-slider-container">
+                <input type="range" 
+                       class="price-slider"
+                       min="0" 
+                       max="100" 
+                       step="5"
+                       [(ngModel)]="priceRange.min"
+                       (input)="onPriceChange()">
+                <input type="range" 
+                       class="price-slider"
+                       min="0" 
+                       max="100" 
+                       step="5"
+                       [(ngModel)]="priceRange.max"
+                       (input)="onPriceChange()">
+              </div>
+              <div class="price-inputs">
+                <div class="price-input-group">
+                  <label>Min:</label>
+                  <input type="number" 
+                         [(ngModel)]="priceRange.min"
+                         (change)="onPriceChange()"
+                         min="0" 
+                         max="100">
+                  <span>€</span>
+                </div>
+                <div class="price-input-group">
+                  <label>Max:</label>
+                  <input type="number" 
+                         [(ngModel)]="priceRange.max"
+                         (change)="onPriceChange()"
+                         min="0" 
+                         max="100">
+                  <span>€</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filtre par Couleur -->
+          <div class="filter-group">
+            <h4 class="filter-title">
+              <i class="fas fa-palette"></i>
+              Couleurs 🎨
+            </h4>
+            <div class="color-filter">
+              <div class="color-grid">
+                <div class="color-filter-item" 
+                     *ngFor="let color of allColors"
+                     [style.background]="color.value"
+                     [class.active]="selectedColors.includes(color.value)"
+                     (click)="toggleColorFilter(color.value)"
+                     [title]="color.name">
+                  <div class="color-info">
+                    <span class="color-name">{{color.name}}</span>
+                    <span class="color-count">({{getProductCountByColor(color.value)}})</span>
+                  </div>
+                  <i class="fas fa-check" *ngIf="selectedColors.includes(color.value)"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filtre par Marque -->
+          <div class="filter-group">
+            <h4 class="filter-title">
+              <i class="fas fa-copyright"></i>
+              Marques 🏷️
+            </h4>
+            <div class="filter-options">
+              <label class="filter-option" *ngFor="let brand of availableBrands">
+                <input type="checkbox" 
+                       [checked]="selectedBrands.includes(brand)"
+                       (change)="toggleBrandFilter(brand)">
+                <span class="checkmark"></span>
+                <span class="option-text">{{brand}}</span>
+                <span class="product-count">({{getProductCountByBrand(brand)}})</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Filtre par Taille -->
+          <div class="filter-group">
+            <h4 class="filter-title">
+              <i class="fas fa-ruler"></i>
+              Tailles 📏
+            </h4>
+            <div class="filter-options">
+              <label class="filter-option" *ngFor="let size of availableSizes">
+                <input type="checkbox" 
+                       [checked]="selectedSizes.includes(size)"
+                       (change)="toggleSizeFilter(size)">
+                <span class="checkmark"></span>
+                <span class="option-text">{{size}}</span>
+                <span class="product-count">({{getProductCountBySize(size)}})</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Filtres Actifs -->
+          <div class="active-filters" *ngIf="hasActiveFilters()">
+            <h4 class="filter-title">Filtres actifs ✅</h4>
+            <div class="active-filters-list">
+              <span class="active-filter" *ngIf="selectedTypes.length > 0">
+                Types: {{selectedTypes.length}}
+                <button (click)="clearTypeFilter()">×</button>
+              </span>
+              <span class="active-filter" *ngIf="selectedColors.length > 0">
+                Couleurs: {{selectedColors.length}}
+                <button (click)="clearColorFilter()">×</button>
+              </span>
+              <span class="active-filter" *ngIf="selectedBrands.length > 0">
+                Marques: {{selectedBrands.length}}
+                <button (click)="clearBrandFilter()">×</button>
+              </span>
+              <span class="active-filter" *ngIf="selectedSizes.length > 0">
+                Tailles: {{selectedSizes.length}}
+                <button (click)="clearSizeFilter()">×</button>
+              </span>
+              <span class="active-filter" *ngIf="priceRange.min > 0 || priceRange.max < 100">
+                Prix: {{priceRange.min}}€ - {{priceRange.max}}€
+                <button (click)="clearPriceFilter()">×</button>
+              </span>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Section Produits -->
+        <main class="products-main">
+          <div class="products-header">
+            <div class="products-info">
+              <h2 class="section-title">Nos Produits 🎒</h2>
+              <div class="products-stats">
+                <span class="products-count">{{filteredProducts.length}} produit(s) trouvé(s)</span>
+                <span class="filter-indicator" *ngIf="hasActiveFilters()">
+                  • Filtres actifs
+                </span>
+              </div>
+            </div>
+            
+            <div class="products-controls">
+              <div class="sort-options">
+                <label>Trier par:</label>
+                <select [(ngModel)]="sortBy" (change)="sortProducts()">
+                  <option value="name">Nom A-Z</option>
+                  <option value="price-asc">Prix croissant</option>
+                  <option value="price-desc">Prix décroissant</option>
+                  <option value="rating">Meilleures notes</option>
+                  <option value="popularity">Popularité</option>
+                </select>
+              </div>
+              
+              <div class="view-options">
+                <button class="view-btn" 
+                        [class.active]="viewMode === 'grid'"
+                        (click)="setViewMode('grid')">
+                  <i class="fas fa-th"></i>
+                </button>
+                <button class="view-btn" 
+                        [class.active]="viewMode === 'list'"
+                        (click)="setViewMode('list')">
+                  <i class="fas fa-list"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Grille des Produits -->
+          <div class="products-container" [class.list-view]="viewMode === 'list'">
+            <div class="products-grid">
+              <div class="product-card" 
+                   *ngFor="let product of paginatedProducts"
+                   [class]="'product-type-' + product.type"
+                   [attr.data-product-id]="product.id">
+                
+                <div class="product-badges">
+                  <div class="product-badge discount" *ngIf="product.discount">
+                    -{{product.discount}}% 🔥
+                  </div>
+                  <div class="product-badge new" *ngIf="product.isNew">
+                    Nouveau 🆕
+                  </div>
+                  <div class="product-badge bestseller" *ngIf="product.isBestseller">
+                    Best-seller ⭐
+                  </div>
+                </div>
+                
+                <div class="product-image">
+                  <!-- Indicateur de chargement -->
+                  <div class="image-loading" *ngIf="product.isLoading">
+                    <i class="fas fa-sync fa-spin"></i>
+                  </div>
+                  <img [src]="product.image" [alt]="product.name" (click)="openProductModal(product)">
+                  <div class="product-actions">
+                    <button class="action-btn wishlist" (click)="toggleWishlist(product)">
+                      <i class="fas fa-heart" [class.active]="isInWishlist(product)"></i>
+                    </button>
+                    <button class="action-btn quick-view" (click)="openProductModal(product)">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="product-info">
+                  <div class="product-category">{{product.category}}</div>
+                  <h3 class="product-title">{{product.name}}</h3>
+                  <p class="product-brand">{{product.brand}}</p>
+                  
+                  <!-- Indicateur de couleur sélectionnée -->
+                  <div class="product-color-indicator">
+                    <span>Couleur: </span>
+                    <div class="current-color-dot" [style.background]="product.selectedColor"></div>
+                    <span class="color-name">{{getColorName(product.selectedColor)}}</span>
+                  </div>
+
+                  <div class="product-rating">
+                    <div class="stars">
+                      <i class="fas fa-star" *ngFor="let star of [1,2,3,4,5]" 
+                         [class.active]="star <= product.rating"></i>
+                    </div>
+                    <span class="rating-count">({{product.reviews}})</span>
+                  </div>
+
+                  <div class="product-price">
+                    <span class="current-price">{{product.price}}€</span>
+                    <span class="original-price" *ngIf="product.originalPrice">
+                      {{product.originalPrice}}€
+                    </span>
+                  </div>
+
+                  <!-- NOUVEAU : Options de couleur avec changement d'image -->
+                  <div class="available-colors">
+                    <span>Choisir la couleur: </span>
+                    <div class="color-options-small">
+                      <div class="color-option-small" 
+                           *ngFor="let color of product.availableColors"
+                           [style.background]="color"
+                           [class.active]="product.selectedColor === color"
+                           (click)="changeProductColor(product, color)"
+                           [title]="getColorName(color)">
+                        <i class="fas fa-check" *ngIf="product.selectedColor === color"></i>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button class="add-to-cart-btn" 
+                          (click)="addToCart(product)"
+                          [class.added]="isInCart(product)">
+                    <span *ngIf="!isInCart(product)">
+                      <i class="fas fa-shopping-cart"></i>
+                      Ajouter au panier
+                    </span>
+                    <span *ngIf="isInCart(product)">
+                      <i class="fas fa-check"></i>
+                      Ajouté ✓
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Message si aucun produit -->
+            <div class="no-products-message" *ngIf="filteredProducts.length === 0">
+              <div class="no-products-content">
+                <i class="fas fa-search"></i>
+                <h3>Aucun produit trouvé</h3>
+                <p>Aucun produit ne correspond à vos critères de recherche.</p>
+                <button class="btn btn-primary" (click)="resetAllFilters()">
+                  <i class="fas fa-redo"></i>
+                  Réinitialiser tous les filtres
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination" *ngIf="filteredProducts.length > productsPerPage">
+            <button class="page-btn prev" 
+                    (click)="prevPage()"
+                    [disabled]="currentPage === 1">
+              <i class="fas fa-chevron-left"></i>
+              Précédent
+            </button>
+            
+            <div class="page-numbers">
+              <button class="page-btn" 
+                      *ngFor="let page of getPageNumbers()"
+                      [class.active]="page === currentPage"
+                      (click)="goToPage(page)">
+                {{page}}
+              </button>
+            </div>
+            
+            <button class="page-btn next" 
+                    (click)="nextPage()"
+                    [disabled]="currentPage === getTotalPages()">
+              Suivant
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </main>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Promotions -->
+  <section class="promo-section">
+    <div class="container">
+      <div class="promo-banner">
+        <div class="promo-content">
+          <div class="promo-badge">-30% 🎉</div>
+          <h2>Offre spéciale rentrée 🚀</h2>
+          <p>Profitez de -30% sur tous les cartables et trousses jusqu'au 30 septembre 🎒</p>
+          <div class="countdown">
+            <div class="countdown-item">
+              <span class="countdown-number">{{countdown.days}}</span>
+              <span class="countdown-label">Jours</span>
+            </div>
+            <div class="countdown-item">
+              <span class="countdown-number">{{countdown.hours}}</span>
+              <span class="countdown-label">Heures</span>
+            </div>
+            <div class="countdown-item">
+              <span class="countdown-number">{{countdown.minutes}}</span>
+              <span class="countdown-label">Minutes</span>
+            </div>
+          </div>
+          <button class="btn-promo" (click)="showPromotions()">
+            Voir les promotions 🎁
+          </button>
+        </div>
+        <div class="promo-image">
+          <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Promotion cartables">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Avantages -->
+  <section class="advantages-section">
+    <div class="container">
+      <div class="advantages-strip">
+        <div class="advantage-item">
+          <div class="emoji">🚚</div>
+          <span>Livraison gratuite</span>
+        </div>
+        <div class="advantage-item">
+          <div class="emoji">🔒</div>
+          <span>Paiement sécurisé</span>
+        </div>
+        <div class="advantage-item">
+          <div class="emoji">↩️</div>
+          <span>Retours 30 jours</span>
+        </div>
+        <div class="advantage-item">
+          <div class="emoji">🎨</div>
+          <span>+15 couleurs</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>Maktabaty 📚</h3>
+          <p>Votre librairie en ligne de confiance. Nous nous engageons à vous offrir les meilleurs livres et fournitures. ✨</p>
+          <div class="social-links">
+            <a href="#" title="Facebook">
+              <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook" style="width: 24px; height: 24px;">
+            </a>
+            <a href="#" title="Pinterest">
+              <img src="https://cdn-icons-png.flaticon.com/512/174/174863.png" alt="Pinterest" style="width: 24px; height: 24px;">
+            </a>
+            <a href="#" title="Instagram">
+              <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" style="width: 24px; height: 24px;">
+            </a>
+            <a href="#" title="LinkedIn">
+              <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" alt="LinkedIn" style="width: 24px; height: 24px;">
+            </a>
+          </div>
+        </div>
+        
+        <div class="footer-section">
+          <h4>Liens rapides 🔗</h4>
+          <ul>
+            <li><a href="/">Accueil 🏠</a></li>
+            <li><a href="#" class="active">Cartables 🎒</a></li>
+            <li><a href="#">Trousses ✏️</a></li>
+            <li><a href="#">Fournitures 📝</a></li>
+            <li><a href="#">Promotions 🔥</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-section">
+          <h4>Contact 📞</h4>
+          <ul>
+            <li>📍 123 Rue de la Lecture, Paris</li>
+            <li>📱 +33 1 23 45 67 89</li>
+            <li>✉️ contact@maktabaty.fr</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <div class="payment-methods">
+          <img src="https://cdn-icons-png.flaticon.com/512/179/179457.png" alt="Visa" style="width: 40px; height: 25px;">
+          <img src="https://cdn-icons-png.flaticon.com/512/179/179459.png" alt="Mastercard" style="width: 40px; height: 25px;">
+          <img src="https://cdn-icons-png.flaticon.com/512/179/179457.png" alt="PayPal" style="width: 40px; height: 25px;">
+          <img src="https://cdn-icons-png.flaticon.com/512/888/888871.png" alt="Apple Pay" style="width: 40px; height: 25px;">
+          <img src="https://cdn-icons-png.flaticon.com/512/888/888870.png" alt="Google Pay" style="width: 40px; height: 25px;">
+        </div>
+        <div class="footer-copyright">
+          <p>&copy; 2024 Maktabaty. Tous droits réservés. 📚</p>
+          <div class="legal-links">
+            <a href="#">Mentions légales ⚖️</a>
+            <a href="#">Politique de confidentialité 🔒</a>
+            <a href="#">CGV 📄</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-overlay" [class.active]="cartOpen" (click)="toggleCart()"></div>
+  <div class="cart-sidebar" [class.active]="cartOpen">
+    <div class="cart-header">
+      <h3>Mon Panier 🛒</h3>
+      <button class="close-cart" (click)="toggleCart()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="cart-content">
+      <div class="cart-items" *ngIf="cartItems.length > 0">
+        <div class="cart-item" *ngFor="let item of cartItems">
+          <div class="item-image">
+            <img [src]="item.image" [alt]="item.name">
+          </div>
+          <div class="item-details">
+            <div class="item-name">{{item.name}}</div>
+            <div class="item-price">{{item.price}}€</div>
+            <div class="item-color">
+              <div class="color-dot-small" [style.background]="item.selectedColor"></div>
+              <span class="color-name-small">{{getColorName(item.selectedColor)}}</span>
+            </div>
+            <div class="item-quantity">
+              <button class="quantity-btn" (click)="decreaseCartQuantity(item)">-</button>
+              <span class="quantity">{{item.quantity}}</span>
+              <button class="quantity-btn" (click)="increaseCartQuantity(item)">+</button>
+            </div>
+          </div>
+          <button class="remove-item" (click)="removeFromCart(item)">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+      <div class="empty-cart" *ngIf="cartItems.length === 0">
+        <i class="fas fa-shopping-cart"></i>
+        <p>Votre panier est vide 😔</p>
+      </div>
+    </div>
+    <div class="cart-footer" *ngIf="cartItems.length > 0">
+      <div class="cart-total">
+        <span>Total:</span>
+        <span class="total-price">{{cartTotal}}€</span>
+      </div>
+      <button class="btn-checkout">Commander maintenant 🚀</button>
+    </div>
+  </div>
+</div>

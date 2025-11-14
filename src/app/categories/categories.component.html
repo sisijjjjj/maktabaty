@@ -1,0 +1,316 @@
+<div class="categories-page">
+  <!-- Header avec breadcrumb -->
+  <section class="categories-header">
+    <div class="container">
+      <div class="breadcrumb">
+        <a routerLink="/">Accueil 🏠</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>Catégories 📚</span>
+      </div>
+      <h1 class="page-title">Nos Catégories 📂</h1>
+      <p class="page-subtitle">Découvrez notre vaste collection organisée par catégories 🔍</p>
+    </div>
+  </section>
+
+  <!-- Section principale -->
+  <section class="categories-main">
+    <div class="container">
+      <div class="categories-layout">
+        
+        <!-- Sidebar des filtres -->
+        <aside class="filters-sidebar">
+          <div class="filters-header">
+            <h3>Filtres 🔍</h3>
+            <button class="reset-filters" (click)="resetFilters()">
+              Réinitialiser 🗑️
+            </button>
+          </div>
+
+          <!-- Filtre par catégorie -->
+          <div class="filter-group">
+            <h4>Catégories 📚</h4>
+            <div class="category-list">
+              <button 
+                class="category-item" 
+                [class.active]="activeCategory === 'all'"
+                (click)="selectCategory('all')">
+                <span>🌟 Toutes les catégories</span>
+              </button>
+              <button 
+                *ngFor="let category of categories"
+                class="category-item"
+                [class.active]="activeCategory === category.id"
+                (click)="selectCategory(category.id)">
+                <i [class]="category.icon"></i>
+                <span>{{category.name}}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Sous-catégories -->
+          <div class="filter-group" *ngIf="activeCategory !== 'all'">
+            <h4>Sous-catégories 🗂️</h4>
+            <div class="subcategory-list">
+              <button 
+                class="subcategory-item"
+                [class.active]="activeSubcategory === 'all'"
+                (click)="selectSubcategory('all')">
+                <span>Toutes 📋</span>
+              </button>
+              <button 
+                *ngFor="let subcat of currentSubcategories"
+                class="subcategory-item"
+                [class.active]="activeSubcategory === subcat.id"
+                (click)="selectSubcategory(subcat.id)">
+                <span>{{subcat.name}}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Filtre par prix -->
+          <div class="filter-group">
+            <h4>Prix 💰</h4>
+            <div class="price-filters">
+              <button 
+                *ngFor="let range of filters.priceRanges"
+                class="price-filter"
+                [class.active]="selectedFilters.priceRange === range"
+                (click)="applyFilter('price', range)">
+                <span>{{range.label}}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Filtre par note -->
+          <div class="filter-group">
+            <h4>Notes ⭐</h4>
+            <div class="rating-filters">
+              <button 
+                *ngFor="let rating of filters.ratings"
+                class="rating-filter"
+                [class.active]="selectedFilters.minRating === rating.stars"
+                (click)="applyFilter('rating', rating.stars)">
+                <div class="stars">
+                  <i class="fas fa-star" *ngFor="let star of [1,2,3,4,5]" 
+                     [class.active]="star <= rating.stars"></i>
+                </div>
+                <span>{{rating.label}}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Filtre par marque -->
+          <div class="filter-group">
+            <h4>Marques 🏷️</h4>
+            <div class="brand-filters">
+              <label *ngFor="let brand of filters.brands" class="brand-filter">
+                <input 
+                  type="checkbox" 
+                  [value]="brand"
+                  [checked]="selectedFilters.brands.includes(brand)"
+                  (change)="onBrandFilterChange(brand, $event)">
+                <span class="checkmark"></span>
+                <span>{{brand}}</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Filtres supplémentaires -->
+          <div class="filter-group">
+            <h4>Options ⚡</h4>
+            <div class="option-filters">
+              <label class="option-filter">
+                <input 
+                  type="checkbox" 
+                  [checked]="selectedFilters.inStock"
+                  (change)="onStockFilterChange($event)">
+                <span class="checkmark"></span>
+                <span>En stock 📦</span>
+              </label>
+              <label class="option-filter">
+                <input 
+                  type="checkbox" 
+                  [checked]="selectedFilters.onSale"
+                  (change)="onSaleFilterChange($event)">
+                <span class="checkmark"></span>
+                <span>En promotion 🔥</span>
+              </label>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Contenu principal -->
+        <main class="products-main">
+          <!-- En-tête avec tri et résultats -->
+          <div class="products-header">
+            <div class="results-info">
+              <span class="results-count">
+                {{categoryProducts.length}} produit(s) trouvé(s) 🎯
+              </span>
+              <span class="active-filters" *ngIf="activeCategory !== 'all' && currentCategoryName">
+                • Catégorie: {{currentCategoryName}}
+              </span>
+              <span class="active-filters" *ngIf="activeSubcategory !== 'all' && currentSubcategoryName">
+                • Sous-catégorie: {{currentSubcategoryName}}
+              </span>
+            </div>
+            <div class="sort-options">
+              <label>Trier par:</label>
+              <select [(ngModel)]="sortBy" (change)="loadCategoryProducts()">
+                <option value="popular">Populaire 🔥</option>
+                <option value="price-asc">Prix croissant 📈</option>
+                <option value="price-desc">Prix décroissant 📉</option>
+                <option value="rating">Meilleures notes ⭐</option>
+                <option value="newest">Nouveautés 🆕</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Grille des produits -->
+          <div class="products-grid" *ngIf="categoryProducts.length > 0">
+            <div *ngFor="let product of categoryProducts" class="product-card">
+              <!-- Badge promotion -->
+              <div class="product-badges">
+                <div *ngIf="product.discount" class="badge discount">
+                  -{{product.discount}}% 🔥
+                </div>
+                <div *ngIf="product.featured" class="badge featured">
+                  Populaire 🌟
+                </div>
+              </div>
+
+              <!-- Image du produit -->
+              <div class="product-image">
+                <img [src]="product.image" [alt]="product.name">
+                <div class="product-actions">
+                  <button class="action-btn favorite" (click)="addToFavorites(product)" title="Ajouter aux favoris">
+                    <i class="fas fa-heart"></i>
+                  </button>
+                  <button class="action-btn quick-view" title="Vue rapide">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Informations du produit -->
+              <div class="product-info">
+                <span class="product-brand">{{product.brand}}</span>
+                <h3 class="product-name">{{product.name}}</h3>
+                
+                <!-- Rating -->
+                <div class="product-rating">
+                  <div class="stars">
+                    <i class="fas fa-star" *ngFor="let star of [1,2,3,4,5]" 
+                       [class.active]="star <= product.rating"
+                       [class.half]="shouldShowHalfStar(star, product.rating)"></i>
+                  </div>
+                  <span class="rating-count">({{product.reviews}})</span>
+                </div>
+
+                <!-- Prix -->
+                <div class="product-price">
+                  <span class="current-price">{{product.price}}€</span>
+                  <span *ngIf="product.originalPrice" class="original-price">
+                    {{product.originalPrice}}€
+                  </span>
+                </div>
+
+                <!-- Bouton d'action -->
+                <button class="add-to-cart-btn" (click)="addToCart(product)">
+                  <i class="fas fa-shopping-cart"></i>
+                  Ajouter au panier 🛒
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message si aucun produit -->
+          <div *ngIf="categoryProducts.length === 0" class="no-products">
+            <div class="no-products-icon">😔</div>
+            <h3>Aucun produit trouvé</h3>
+            <p>Essayez de modifier vos filtres ou de chercher dans une autre catégorie.</p>
+            <button class="btn-primary" (click)="resetFilters()">
+              Réinitialiser les filtres 🔄
+            </button>
+          </div>
+
+          <!-- Pagination -->
+          <div *ngIf="totalPages > 1 && categoryProducts.length > 0" class="pagination">
+            <button 
+              class="pagination-btn" 
+              [disabled]="currentPage === 1"
+              (click)="changePage(currentPage - 1)">
+              <i class="fas fa-chevron-left"></i>
+              Précédent
+            </button>
+            
+            <div class="pagination-numbers">
+              <button 
+                *ngFor="let page of getPageNumbers()"
+                class="page-number"
+                [class.active]="page === currentPage"
+                (click)="changePage(page)">
+                {{page}}
+              </button>
+            </div>
+
+            <button 
+              class="pagination-btn"
+              [disabled]="currentPage === totalPages"
+              (click)="changePage(currentPage + 1)">
+              Suivant
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </main>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section avantages -->
+  <section class="categories-advantages">
+    <div class="container">
+      <div class="advantages-grid">
+        <div class="advantage-card">
+          <div class="advantage-icon">🚚</div>
+          <h3>Livraison Rapide</h3>
+          <p>Livraison en 24-48h partout en France</p>
+        </div>
+        <div class="advantage-card">
+          <div class="advantage-icon">🔒</div>
+          <h3>Paiement Sécurisé</h3>
+          <p>Paiement 100% sécurisé SSL</p>
+        </div>
+        <div class="advantage-card">
+          <div class="advantage-icon">↩️</div>
+          <h3>Retour Facile</h3>
+          <p>30 jours pour changer d'avis</p>
+        </div>
+        <div class="advantage-card">
+          <div class="advantage-icon">📞</div>
+          <h3>Support 24/7</h3>
+          <p>Notre équipe à votre écoute</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section newsletter -->
+  <section class="categories-newsletter">
+    <div class="container">
+      <div class="newsletter-banner">
+        <div class="newsletter-content">
+          <h2>Ne manquez rien ! 📧</h2>
+          <p>Inscrivez-vous pour recevoir les nouveautés de vos catégories préférées 🎁</p>
+          <div class="newsletter-form">
+            <input type="email" placeholder="Votre email ✉️" #newsletterInput>
+            <button class="btn-newsletter" (click)="subscribeNewsletter(newsletterInput.value)">
+              S'abonner 🚀
+            </button>
+          </div>
+          <p class="newsletter-note">📩 Vous recevrez un code promo de -10% immédiatement !</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

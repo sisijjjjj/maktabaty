@@ -1,0 +1,344 @@
+<div class="promotions-page">
+  <!-- Header avec logo et navigation -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <!-- Logo avec image réelle -->
+        <a href="#" class="logo">
+          <div class="logo-icon">
+            <img src="https://cdn-icons-png.flaticon.com/512/2910/2910768.png" alt="Maktabaty Logo" style="width: 30px; height: 30px;">
+          </div>
+          <span class="logo-text">Maktabaty</span>
+        </a>
+        
+        <!-- Barre de recherche dans le header -->
+        <div class="header-search">
+          <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Rechercher une promotion..." [(ngModel)]="searchQuery" (input)="onSearch()">
+          </div>
+          <div class="search-suggestions" *ngIf="showSuggestions && searchSuggestions.length > 0">
+            <div class="suggestion-item" *ngFor="let suggestion of searchSuggestions" (click)="selectSuggestion(suggestion)">
+              {{suggestion}}
+            </div>
+          </div>
+        </div>
+        
+        <nav>
+          <ul class="nav-menu">
+            <li><a href="#">Accueil</a></li>
+          
+          
+            <li><a href="#">Fournitures</a></li>
+            <li><a href="#">Catégories</a></li>
+          </ul>
+        </nav>
+        
+        <div class="header-actions">
+          <!-- Boutons Connexion/Inscription -->
+          <div class="auth-buttons">
+            <button class="btn-login" (click)="openLogin()">
+              <i class="fas fa-sign-in-alt"></i>
+              Connexion
+            </button>
+            <button class="btn-signup" (click)="openSignup()">
+              <i class="fas fa-user-plus"></i>
+              Inscription
+            </button>
+          </div>
+          
+          <div class="header-action-item">
+            <i class="fas fa-search search-toggle" (click)="toggleSearch()"></i>
+          </div>
+          <div class="header-action-item">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="header-action-item cart" (click)="toggleCart()">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge" *ngIf="cartCount > 0">🛒{{cartCount}}</span>
+          </div>
+          <div class="header-action-item">
+            <i class="fas fa-heart"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Bannière de promotions -->
+  <section class="promo-hero">
+    <div class="container">
+      <div class="promo-hero-content">
+        <div class="promo-hero-text">
+          <h1>PROMOTIONS EXCEPTIONNELLES 🎉</h1>
+          <p>Jusqu'à -70% sur une sélection de livres et fournitures scolaires 📚✨</p>
+          <div class="promo-countdown">
+            <div class="countdown-item">
+              <span class="countdown-number">{{countdown.days}}</span>
+              <span class="countdown-label">Jours 📅</span>
+            </div>
+            <div class="countdown-item">
+              <span class="countdown-number">{{countdown.hours}}</span>
+              <span class="countdown-label">Heures ⏰</span>
+            </div>
+            <div class="countdown-item">
+              <span class="countdown-number">{{countdown.minutes}}</span>
+              <span class="countdown-label">Minutes ⏱️</span>
+            </div>
+          </div>
+        </div>
+        <div class="promo-hero-image">
+          <div class="promo-badge-large">
+            <span>DISCOUNT</span>
+            <span>RENTREE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Filtres -->
+  <section class="filters-section">
+    <div class="container">
+      <div class="filters-content">
+        <div class="filter-group">
+          <h3>Trier par:</h3>
+          <div class="filter-options">
+            <button class="filter-btn" [class.active]="activeSort === 'relevance'" (click)="setActiveSort('relevance')">Pertinence 🔍</button>
+            <button class="filter-btn" [class.active]="activeSort === 'price-asc'" (click)="setActiveSort('price-asc')">Prix croissant 📈</button>
+            <button class="filter-btn" [class.active]="activeSort === 'price-desc'" (click)="setActiveSort('price-desc')">Prix décroissant 📉</button>
+            <button class="filter-btn" [class.active]="activeSort === 'discount-desc'" (click)="setActiveSort('discount-desc')">Meilleures promos 🔥</button>
+            <button class="filter-btn" [class.active]="activeSort === 'rating-desc'" (click)="setActiveSort('rating-desc')">Meilleures notes ⭐</button>
+          </div>
+        </div>
+        
+        <div class="filter-group">
+          <h3>Filtrer par catégorie:</h3>
+          <div class="filter-options">
+            <button class="filter-btn" [class.active]="activeCategory === 'all'" (click)="setActiveCategory('all')">Toutes 🌟</button>
+            <button class="filter-btn" [class.active]="activeCategory === 'books'" (click)="setActiveCategory('books')">Livres 📖</button>
+            <button class="filter-btn" [class.active]="activeCategory === 'supplies'" (click)="setActiveCategory('supplies')">Fournitures ✏️</button>
+            <button class="filter-btn" [class.active]="activeCategory === 'packs'" (click)="setActiveCategory('packs')">Packs 🎒</button>
+          </div>
+        </div>
+        
+        <div class="filter-group">
+          <h3>Filtrer par prix:</h3>
+          <div class="filter-options">
+            <button class="filter-btn" [class.active]="activePrice === 'all'" (click)="setActivePrice('all')">Tous les prix 💰</button>
+            <button class="filter-btn" [class.active]="activePrice === 'under10'" (click)="setActivePrice('under10')">Moins de 10€</button>
+            <button class="filter-btn" [class.active]="activePrice === '10-25'" (click)="setActivePrice('10-25')">10€ - 25€</button>
+            <button class="filter-btn" [class.active]="activePrice === '25-50'" (click)="setActivePrice('25-50')">25€ - 50€</button>
+            <button class="filter-btn" [class.active]="activePrice === 'over50'" (click)="setActivePrice('over50')">Plus de 50€</button>
+          </div>
+        </div>
+        
+        <div class="filter-group">
+          <h3>Filtrer par réduction:</h3>
+          <div class="filter-options">
+            <button class="filter-btn" [class.active]="activeDiscount === 'all'" (click)="setActiveDiscount('all')">Toutes 🎯</button>
+            <button class="filter-btn" [class.active]="activeDiscount === '20'" (click)="setActiveDiscount('20')">-20%</button>
+            <button class="filter-btn" [class.active]="activeDiscount === '30'" (click)="setActiveDiscount('30')">-30%</button>
+            <button class="filter-btn" [class.active]="activeDiscount === '50'" (click)="setActiveDiscount('50')">-50%</button>
+            <button class="filter-btn" [class.active]="activeDiscount === '70'" (click)="setActiveDiscount('70')">-70%</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Produits en Promotion -->
+  <section class="promo-products-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Produits en Promotion 🔥</h2>
+        <div class="results-count">{{filteredProductsCount}} produits trouvés 🎯</div>
+      </div>
+      
+      <div class="promo-products-grid">
+        <!-- Produits affichés avec pagination -->
+        <div class="promo-product-card" *ngFor="let product of displayedProducts" [class.animate-in]="true">
+          <div class="promo-badge">-{{product.discount}}% 💰</div>
+          <div class="time-left">
+            <i class="fas fa-clock"></i>
+            <span>Fin dans {{product.timeLeft}} ⏳</span>
+          </div>
+          <div class="product-image">
+            <img [src]="product.image" [alt]="product.title" (error)="handleImageError($event)">
+          </div>
+          <div class="product-info">
+            <h3 class="product-title">{{product.title}}</h3>
+            <p class="product-author">{{product.author}}</p>
+            <div class="product-rating">
+              <div class="stars">
+                <i class="fas fa-star" *ngFor="let star of [1,2,3,4,5]" 
+                   [class.active]="star <= product.rating"></i>
+              </div>
+              <span class="rating-count">({{product.reviews}})</span>
+            </div>
+            <div class="product-price">
+              <span class="current-price">{{formatPrice(product.price)}}€</span>
+              <span class="original-price" *ngIf="product.originalPrice">{{formatPrice(product.originalPrice)}}€</span>
+            </div>
+            <button class="add-to-cart-btn" (click)="addToCart(product, $event)">
+              🛒 Ajouter au panier
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Pagination -->
+      <div class="pagination" *ngIf="totalPages > 1">
+        <button class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+          <i class="fas fa-chevron-left"></i> Précédent
+        </button>
+        
+        <button class="pagination-btn" *ngFor="let page of getPageNumbers()" 
+                [class.active]="page === currentPage"
+                (click)="goToPage(page)">
+          {{page}}
+        </button>
+        
+        <button class="pagination-btn next" (click)="nextPage()" [disabled]="currentPage === totalPages">
+          Suivant <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Newsletter -->
+  <section class="newsletter-section">
+    <div class="container">
+      <div class="newsletter-banner">
+        <div class="newsletter-content">
+          <h2>Ne manquez aucune promotion ! 📧</h2>
+          <p>Inscrivez-vous à notre newsletter et soyez le premier informé de nos offres exclusives 🎁</p>
+          <div class="newsletter-form">
+            <input type="email" placeholder="Votre adresse email ✉️" [(ngModel)]="newsletterEmail">
+            <button class="btn btn-newsletter" (click)="subscribeNewsletter()">S'abonner 🚀</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>Maktabaty 📚</h3>
+          <p>Votre librairie en ligne de confiance. Nous nous engageons à vous offrir les meilleurs livres et fournitures. ✨</p>
+          <div class="social-links">
+            <a href="#" title="Facebook">
+              <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook" style="width: 24px; height: 24px;">
+            </a>
+            <a href="#" title="Instagram">
+              <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" style="width: 24px; height: 24px;">
+            </a>
+            <a href="#" title="LinkedIn">
+              <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" alt="LinkedIn" style="width: 24px; height: 24px;">
+            </a>
+            <a href="#" title="Pinterest">
+              <img src="https://cdn-icons-png.flaticon.com/512/174/174863.png" alt="Pinterest" style="width: 24px; height: 24px;">
+            </a>
+          
+          </div>
+        </div>
+        
+        <div class="footer-section">
+          <h4>Liens rapides 🔗</h4>
+          <ul>
+            <li><a href="#">Accueil 🏠</a></li>
+            <li><a href="#" class="active">Promotions 🔥</a></li>
+            <li><a href="#">Livres 📖</a></li>
+            <li><a href="#">Fournitures ✏️</a></li>
+            <li><a href="#">Catégories 📚</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-section">
+          <h4>Mon compte 👤</h4>
+          <ul>
+            <li><a href="#">Connexion 🔑</a></li>
+            <li><a href="#">Inscription 📝</a></li>
+            <li><a href="#">Mes commandes 📦</a></li>
+            <li><a href="#">Mes favoris ❤️</a></li>
+            <li><a href="#">Paramètres ⚙️</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-section">
+          <h4>Contact 📞</h4>
+          <ul>
+            <li><i class="fas fa-map-marker-alt"></i> 123 Rue de la Lecture, Paris 🗺️</li>
+            <li><i class="fas fa-phone"></i> +33 1 23 45 67 89 📱</li>
+            <li><i class="fas fa-envelope"></i> contact@maktabaty.fr ✉️</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <div class="payment-methods">
+          <img src="https://cdn-icons-png.flaticon.com/512/179/179457.png" alt="Visa" style="width: 40px; height: 25px;">
+          <img src="https://cdn-icons-png.flaticon.com/512/179/179459.png" alt="Mastercard" style="width: 40px; height: 25px;">
+          <img src="https://cdn-icons-png.flaticon.com/512/179/179457.png" alt="PayPal" style="width: 40px; height: 25px;">
+          <img src="https://cdn-icons-png.flaticon.com/512/888/888871.png" alt="Apple Pay" style="width: 40px; height: 25px;">
+          <img src="https://cdn-icons-png.flaticon.com/512/888/888870.png" alt="Google Pay" style="width: 40px; height: 25px;">
+        </div>
+        <div class="footer-copyright">
+          <p>&copy; 2024 Maktabaty. Tous droits réservés. 📚</p>
+          <div class="legal-links">
+            <a href="#">Mentions légales ⚖️</a>
+            <a href="#">Politique de confidentialité 🔒</a>
+            <a href="#">CGV 📄</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-overlay" [class.active]="cartOpen" (click)="toggleCart()"></div>
+  <div class="cart-sidebar" [class.active]="cartOpen">
+    <div class="cart-header">
+      <h3>Mon Panier 🛒</h3>
+      <button class="close-cart" (click)="toggleCart()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="cart-content">
+      <div class="cart-items" *ngIf="cartItems.length > 0">
+        <div class="cart-item" *ngFor="let item of cartItems">
+          <div class="item-image">
+            <img [src]="item.image" [alt]="item.name" (error)="handleImageError($event)">
+          </div>
+          <div class="item-details">
+            <div class="item-name">{{item.name}}</div>
+            <div class="item-price">{{formatPrice(item.price)}}€ 💰</div>
+            <div class="item-quantity">
+              <button class="quantity-btn" (click)="decreaseQuantity(item)">-</button>
+              <span class="quantity">{{item.quantity}}</span>
+              <button class="quantity-btn" (click)="increaseQuantity(item)">+</button>
+            </div>
+          </div>
+          <button class="remove-item" (click)="removeFromCart(item)">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+      <div class="empty-cart" *ngIf="cartItems.length === 0">
+        <i class="fas fa-shopping-cart"></i>
+        <p>Votre panier est vide 😔</p>
+        <p>Profitez de nos promotions ! 🎁</p>
+      </div>
+    </div>
+    <div class="cart-footer" *ngIf="cartItems.length > 0">
+      <div class="cart-total">
+        <span>Total:</span>
+        <span class="total-price">{{formatPrice(cartTotal)}}€ 💳</span>
+      </div>
+      <button class="btn-checkout" (click)="checkout()">Commander maintenant 🚀</button>
+    </div>
+  </div>
+</div>
