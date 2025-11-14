@@ -2,10 +2,12 @@
   "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "dist/boutique",
-  "routes": [
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/dist/boutique/$1"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
